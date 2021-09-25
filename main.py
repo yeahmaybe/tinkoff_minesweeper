@@ -247,12 +247,12 @@ class Command:
                        'new - новая игра',
                        'save <название> - соханить',
                        'load <название> - загрузить',
-                       'X Y - открыть ячейку',
-                       '! X Y - поставить флаг',
+                       'X Y open - открыть ячейку',
+                       'X Y flag - поставить флаг',
                        'quit - выйти']
 
-        self.__flag = r'!\s*\d+\s+\d+'
-        self.__turn = r'\d+\s+\d+'
+        self.__open = r'\s*\d+\s+\d+\s+open\s*'
+        self.__flag = r'\s*\d+\s+\d+\s+flag\s*'
 
         defined = False
         for tp in self.__common:
@@ -268,13 +268,12 @@ class Command:
                 defined = True
 
         if not defined:
-            if re.fullmatch(self.__flag, text.lower()):
-                self.__type = "flag"
-                self.__args = list(map(int, text[1:].split()))
-
-            elif re.fullmatch(self.__turn, text.lower()):
-                self.__type = "turn"
-                self.__args = list(map(int, text.split()))
+            if re.fullmatch(self.__open, text.lower()):
+                self.__type = list(text.split())[2]
+                self.__args = list(map(int, text[:-4].split()))
+            elif re.fullmatch(self.__flag, text.lower()):
+                self.__type = list(text.split())[2]
+                self.__args = list(map(int, text[:-4].split()))
             else:
                 self.__type = None
                 self.__args = None
@@ -357,7 +356,7 @@ class Administrator:
 
             else:
                 target.open()
-                if instruction.type() == 'turn':
+                if instruction.type() == 'open':
                     if target.hasBomb():
                         self.defeat()
                         return 0
@@ -505,7 +504,7 @@ class Administrator:
         elif instruction.type() == 'new':
             self.new()
 
-        elif instruction.type() == 'turn' \
+        elif instruction.type() == 'open' \
                 or instruction.type() == 'flag':
             self.turn(instruction)
 
